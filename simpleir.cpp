@@ -120,6 +120,7 @@ struct PointLight {
 };
 
 // VPL発射
+// このへんはフォトンマップにおけるフォトントレースと同様
 void emit_vpl(const int vpl_num, std::vector<PointLight> *point_lights) {
 
 	for (int i = 0; i < vpl_num; i ++) {
@@ -263,6 +264,7 @@ Color radiance(const Ray &ray, const int depth, std::vector<PointLight> *point_l
 		if (id == LightID)
 			return obj.emission;
 
+		// VPLからの影響を計算する
 		Color accum;
 
 		for (int i = 0; i < point_lights->size(); i ++) {
@@ -275,8 +277,6 @@ Color radiance(const Ray &ray, const int depth, std::vector<PointLight> *point_l
 			const double c0 = Dot((*point_lights)[i].normal, to0);
 			const double c1 = Dot(orienting_normal, to1);
 			const double dist2 = (hitpoint - (*point_lights)[i].position).LengthSquared();
-
-
 			if (c0 >= 0 &&  c1 >= 0 && fabs(sqrt(dist2) - t) < EPS) {
 				accum = accum + (c0 * c1 / (dist2 + bias)) * Multiply(obj.color / PI, (*point_lights)[i].power) / PI;
 			}
@@ -436,7 +436,6 @@ int main(int argc, char **argv) {
 			for (int sy = 0; sy < 2; sy ++) {
 				for (int sx = 0; sx < 2; sx ++) {
 					Color accumulated_radiance = Color();
-					// 一つのサブピクセルあたりsamples回サンプリングする
 					// テントフィルターによってサンプリング
 					// ピクセル範囲で一様にサンプリングするのではなく、ピクセル中央付近にサンプルがたくさん集まるように偏りを生じさせる
 					const double r1 = 2.0 * rand01(), dx = r1 < 1.0 ? sqrt(r1) - 1.0 : 1.0 - sqrt(2.0 - r1);
