@@ -89,14 +89,8 @@ Sphere spheres[] = {
 	Sphere(1e5, Vec(50,40.8,-1e5+170), Color(), Color(), DIFFUSE),// 手前
 	Sphere(1e5, Vec(50, 1e5, 81.6),    Color(), Color(0.75, 0.75, 0.75),DIFFUSE),// 床
 	Sphere(1e5, Vec(50,-1e5+81.6,81.6),Color(), Color(0.75, 0.75, 0.75),DIFFUSE),// 天井
-
-	Sphere(16.5,Vec(27,16.5,47),       Color(), Color(0.75, 0.75, 0.75), DIFFUSE),// 鏡
-	Sphere(16.5,Vec(73,16.5,78),       Color(), Color(0.75, 0.75, 0.75), DIFFUSE),//ガラス
-	/*
-	Sphere(16.5,Vec(27,16.5,47),       Color(), Color(1,1,1)*.99, SPECULAR),// 鏡
-	Sphere(16.5,Vec(73,16.5,78),       Color(), Color(1,1,1)*.99, REFRACTION),//ガラス
-	*/
-	
+	Sphere(16.5,Vec(27,16.5,47),       Color(), Color(0.75, 0.75, 0.75), DIFFUSE),// ボール
+	Sphere(16.5,Vec(73,16.5,78),       Color(), Color(0.75, 0.75, 0.75), DIFFUSE),// ボール
 };
 const int LightID = 0;
 
@@ -125,9 +119,8 @@ struct PointLight {
 	PointLight(const Vec& position_, const Vec& normal_, const Color& power_) :
 	position(position_), normal(normal_), power(power_) {}
 };
+
 void emit_vpl(const int vpl_num, std::vector<PointLight> *point_lights) {
-
-
 	for (int i = 0; i < vpl_num; i ++) {
 		// 光源からフォトンを発射する
 		// 光源上の一点をサンプリングする	
@@ -160,9 +153,6 @@ void emit_vpl(const int vpl_num, std::vector<PointLight> *point_lights) {
 		Color now_flux = spheres[LightID].emission * 4.0 * PI * pow(spheres[LightID].radius, 2.0) * PI / vpl_num;
 
 		point_lights->push_back(PointLight(light_pos, normal, now_flux));
-
-		// 直接光のみ
-		//continue;
 
 		// フォトンがシーンを飛ぶ
 		bool trace_end = false;
@@ -589,10 +579,7 @@ Color radiance(const Ray &ray, const int depth, LightTree *light_tree) {
 			return obj.emission;
 	} else
 		russian_roulette_probability = 1.0; // ロシアンルーレット実行しなかった
-
-
-
-
+		
 	switch (obj.ref_type) {
 	case DIFFUSE: {
 		if (id == LightID)
